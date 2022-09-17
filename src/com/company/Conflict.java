@@ -1,5 +1,8 @@
 package com.company;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * Created by IntelliJ IDEA.
  * lab3.Conflict
@@ -12,7 +15,7 @@ package com.company;
 class Conflict {
     private final String name;
 
-    private static boolean isFree = true;
+    private boolean isBusy = false;
 
     public Conflict (String name) {
         this.name = name;
@@ -23,21 +26,24 @@ class Conflict {
     }
 
     public synchronized void bow(Conflict bower) throws InterruptedException {
-        if (!isFree) {
-            while (!isFree) {
-                try {
-                    wait();
-                } catch (InterruptedException ignored) { }
-            }
+        if (!isBusy) {
+
+            isBusy = true;
+
+            System.out.format("%s: %s" + " пропускає мене!%n", this.name, bower.getName());
+            Thread.sleep(500);
+
+            isBusy = false;
+
+        } else {
+
+          while (isBusy) {
+              try {
+                 wait();
+              } catch (InterruptedException ignored) { }
+          }
+
         }
-
-        isFree = false;
-
-        System.out.format("%s: %s" + " пропускає мене!%n", this.name, bower.getName());
-        Thread.sleep(1000);
-        bower.bowBack(this);
-
-        isFree = true;
     }
 
     public synchronized void bowBack(Conflict bower) {
