@@ -15,7 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
 class Conflict {
     private final String name;
 
-    private boolean isBusy = false;
+    private static boolean isBusy = false;
 
     public Conflict (String name) {
         this.name = name;
@@ -31,9 +31,11 @@ class Conflict {
             isBusy = true;
 
             System.out.format("%s: %s" + " пропускає мене!%n", this.name, bower.getName());
-            Thread.sleep(500);
+            Thread.sleep(1500);
 
             isBusy = false;
+
+            bower.bowBack(this);
 
         } else {
 
@@ -42,13 +44,14 @@ class Conflict {
                  wait();
               } catch (InterruptedException ignored) { }
           }
-
         }
     }
 
-    public synchronized void bowBack(Conflict bower) {
-        System.out.format("%s: %s"
-                        + " пропускає мене у відповідь!%n",
-                this.name, bower.getName());
+    public synchronized void bowBack(Conflict bower) throws InterruptedException {
+            System.out.format("%s: %s"
+                            + " пропускає мене у відповідь!%n",
+                    this.name, bower.getName());
+
+            this.bow(bower);
     }
 }
